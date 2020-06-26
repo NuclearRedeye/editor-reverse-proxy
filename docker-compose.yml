@@ -1,0 +1,19 @@
+version: '3'
+services:
+  nginx:
+    image: editor-reverse-proxy:local
+    container_name: editor-reverse-proxy
+    ports:
+      - 8080:80
+
+  client:
+    image: editor-client:local
+    container_name: editor-client
+
+  articleStore:
+    image: editor-article-store:local
+    container_name: editor-article-store
+#    environment:
+#      - ARTICLE_ROOT=/articles
+#    volumes:
+#      - /Users/joel/Development/libero/editor-reference-manuscripts/manuscripts:/articles
