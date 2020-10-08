@@ -1,6 +1,6 @@
-# editor-test
+# editor-reverse-proxy
 
-Repo that can be used to run a local instance of the editor backend and client
+Repo that can be used to run a local instance of the Libero Editor backend and client
 
 # Usage
 
