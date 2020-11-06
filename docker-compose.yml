@@ -1,19 +1,103 @@
-version: '3'
+version: '3.5'
+
 services:
-  nginx:
-    image: editor-reverse-proxy:local
-    container_name: editor-reverse-proxy
+  watchtower:
+    image: v2tec/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - '/etc/timezone:/etc/timezone:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    command: --label-enable --cleanup --no-pull --interval 10
+
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    restart: unless-stopped
+    environment:
+      - SERVICES=s3,sqs
+    volumes:
+      - './tmp/localstack:/tmp/localstack'
+      - './resources:/resources'
+      - './test/test-files:/test/test-files'
+      - './.localstack/startup:/docker-entrypoint-initaws.d'
+      - './.localstack/config:/etc/localstackconf'
     ports:
-      - 8080:80
+      - 4566:4566
+    healthcheck:
+      test: 'echo -e "GET /health\n\n" | nc localhost 4566'
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
-  client:
-    image: editor-client:local
-    container_name: editor-client
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' |  mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
-  articleStore:
-    image: editor-article-store:local
+  editor-article-store:
+    image: liberoadmin/editor-article-store:${TAG-latest}
     container_name: editor-article-store
-#    environment:
-#      - ARTICLE_ROOT=/articles
-#    volumes:
-#      - /Users/joel/Development/libero/editor-reference-manuscripts/manuscripts:/articles
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - localstack
+    environment:
+      - PORT=8080
+      - MONGO_URL=mongodb://root:password@mongo:27017
+      - MONGO_DB_NAME=editor
+      - AWS_REGION=eu-west-1
+      - AWS_ACCESS_KEY=key
+      - AWS_SECRET_ACCESS_KEY=secret
+      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://localstack:4566/000000000000/KryiaUploadQueue
+      - AWS_END_POINT=http://localstack:4566
+      - AWS_SRC_BUCKET=kryia
+      - AWS_EDITOR_BUCKET=editor
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+
+  editor-client:
+    image: liberoadmin/editor-client:${TAG-latest}
+    container_name: editor-client
+    restart: unless-stopped
+    depends_on:
+      - editor-article-store
+    labels:
+      - 'com.centurylinklabs.watchtower.enable=true'
+
+  editor-gateway:
+    image: nginx:alpine
+    container_name: editor-gateway
+    depends_on:
+      - editor-article-store
+      - editor-client
+    volumes:
+      - "./src/nginx.conf:/etc/nginx/nginx.conf:ro"
+    ports:
+      - 3000:80
+
+# Development Services
+  editor-importer:
+    build:
+      context: './file-watcher'
+    image: editor-importer:latest
+    container_name: editor-importer
+    depends_on:
+      - localstack
+    environment: 
+      - S3_BUCKET=kryia
+      - AWS_ENDPOINT=http://localstack:4566
+    volumes: 
+      - "./tmp/kryiaBucket:/bucket-to-watch"
