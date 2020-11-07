@@ -3,7 +3,7 @@ version: '3.5'
 services:
   watchtower:
     image: v2tec/watchtower
-    container_name: watchtower
+    container_name: editor-watchtower
     restart: unless-stopped
     volumes:
       - '/etc/timezone:/etc/timezone:ro'
@@ -13,7 +13,7 @@ services:
 
   localstack:
     image: localstack/localstack
-    container_name: localstack
+    container_name: editor-localstack
     restart: unless-stopped
     environment:
       - SERVICES=s3,sqs
@@ -33,7 +33,7 @@ services:
 
   mongo:
     image: mongo
-    container_name: mongo
+    container_name: editor-mongo
     restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
@@ -56,13 +56,13 @@ services:
       - localstack
     environment:
       - PORT=8080
-      - MONGO_URL=mongodb://root:password@mongo:27017
+      - MONGO_URL=mongodb://root:password@editor-mongo:27017
       - MONGO_DB_NAME=editor
       - AWS_REGION=eu-west-1
       - AWS_ACCESS_KEY=key
       - AWS_SECRET_ACCESS_KEY=secret
-      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://localstack:4566/000000000000/KryiaUploadQueue
-      - AWS_END_POINT=http://localstack:4566
+      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://editor-localstack:4566/000000000000/KryiaUploadQueue
+      - AWS_END_POINT=http://editor-localstack:4566
       - AWS_SRC_BUCKET=kryia
       - AWS_EDITOR_BUCKET=editor
     labels:
