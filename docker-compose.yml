@@ -98,6 +98,6 @@ services:
       - localstack
     environment: 
       - S3_BUCKET=s3-editor-source-bucket
-      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_ENDPOINT=http://editor-localstack:4566
     volumes: 
       - "./tmp/s3-editor-source-bucket:/bucket-to-watch"
