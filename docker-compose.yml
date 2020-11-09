@@ -61,10 +61,10 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_ACCESS_KEY=key
       - AWS_SECRET_ACCESS_KEY=secret
-      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://editor-localstack:4566/000000000000/KryiaUploadQueue
+      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://editor-localstack:4566/000000000000/EditorImportQueue
       - AWS_END_POINT=http://editor-localstack:4566
-      - AWS_SRC_BUCKET=kryia
-      - AWS_EDITOR_BUCKET=editor
+      - AWS_SRC_BUCKET=s3-editor-source-bucket
+      - AWS_EDITOR_BUCKET=s3-editor-destination-bucket
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
 
@@ -97,7 +97,7 @@ services:
     depends_on:
       - localstack
     environment: 
-      - S3_BUCKET=kryia
+      - S3_BUCKET=s3-editor-source-bucket
       - AWS_ENDPOINT=http://localstack:4566
     volumes: 
-      - "./tmp/kryiaBucket:/bucket-to-watch"
+      - "./tmp/s3-editor-source-bucket:/bucket-to-watch"
