@@ -24,10 +24,11 @@ services:
     ports:
       - 4566:4566
     healthcheck:
-      test: 'echo -e "GET /health\n\n" | nc localhost 4566'
+      test: 'echo -e "GET /health\n\n" | nc ${PREFIX-editor}-localstack 4566'
       interval: 1m
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   mongo:
     image: mongo
@@ -39,7 +40,7 @@ services:
     ports:
       - 27017:27017
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' |  mongo localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo ${PREFIX-editor}-mongo:27017/test --quiet
       interval: 10s
       timeout: 10s
       retries: 3

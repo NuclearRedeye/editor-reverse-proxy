@@ -1,6 +1,6 @@
 # editor-dev
 
-Run a local instance of Libero Editor for demostration, testing and development.
+Run a local instance of Libero Editor for demos, testing and development.
 
 # Quick Start
 
