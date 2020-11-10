@@ -46,6 +46,3 @@ stop:
 
 logs:
 	@docker-compose logs --follow
-
-provision:
-	@docker exec editor-localstack awslocal s3 cp /resources/articles/elife-54296-vor-r1.zip s3://s3-editor-source-bucket/

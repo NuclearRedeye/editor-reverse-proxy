@@ -18,11 +18,9 @@ services:
     environment:
       - SERVICES=s3,sqs
     volumes:
-      - './tmp/localstack:/tmp/localstack'
-      - './resources:/resources'
-      - './test/test-files:/test/test-files'
-      - './.localstack/startup:/docker-entrypoint-initaws.d'
-      - './.localstack/config:/etc/localstackconf'
+      - './.localstack/startup:/docker-entrypoint-initaws.d:ro'
+      - './.localstack/config:/etc/localstackconf:ro'
+      - './.localstack/articles:/tmp/articles:ro'
     ports:
       - 4566:4566
     healthcheck:

@@ -1,4 +1,5 @@
-echo 'creating SQS queue'
+#!/bin/bash
+echo "Initializing SQS"
 awslocal sqs create-queue --queue-name EditorImportQueue
 echo 'SQS queue created'
 echo 'setting up bucket notifications'
