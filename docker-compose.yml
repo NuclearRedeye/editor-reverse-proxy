@@ -3,7 +3,7 @@ version: '3.5'
 services:
   watchtower:
     image: v2tec/watchtower
-    container_name: editor-watchtower
+    container_name: ${PREFIX-editor}-watchtower
     restart: unless-stopped
     volumes:
       - '/etc/timezone:/etc/timezone:ro'
@@ -13,7 +13,7 @@ services:
 
   localstack:
     image: localstack/localstack
-    container_name: editor-localstack
+    container_name: ${PREFIX-editor}-localstack
     restart: unless-stopped
     environment:
       - SERVICES=s3,sqs
@@ -31,7 +31,7 @@ services:
 
   mongo:
     image: mongo
-    container_name: editor-mongo
+    container_name: ${PREFIX-editor}-mongo
     restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
@@ -47,20 +47,20 @@ services:
 
   editor-article-store:
     image: liberoadmin/editor-article-store:${TAG-latest}
-    container_name: editor-article-store
+    container_name: ${PREFIX-editor}-article-store
     restart: unless-stopped
     depends_on:
       - mongo
       - localstack
     environment:
       - PORT=8080
-      - MONGO_URL=mongodb://root:password@editor-mongo:27017
+      - MONGO_URL=mongodb://root:password@${PREFIX-editor}-mongo:27017
       - MONGO_DB_NAME=editor
       - AWS_REGION=eu-west-1
       - AWS_ACCESS_KEY=key
       - AWS_SECRET_ACCESS_KEY=secret
-      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://editor-localstack:4566/000000000000/EditorImportQueue
-      - AWS_END_POINT=http://editor-localstack:4566
+      - AWS_BUCKET_INPUT_EVENT_QUEUE_URL=http://${PREFIX-editor}-localstack:4566/000000000000/EditorImportQueue
+      - AWS_END_POINT=http://${PREFIX-editor}-localstack:4566
       - AWS_SRC_BUCKET=s3-editor-source-bucket
       - AWS_EDITOR_BUCKET=s3-editor-destination-bucket
     labels:
@@ -68,7 +68,7 @@ services:
 
   editor-client:
     image: liberoadmin/editor-client:${TAG-latest}
-    container_name: editor-client
+    container_name: ${PREFIX-editor}-client
     restart: unless-stopped
     depends_on:
       - editor-article-store
@@ -77,24 +77,24 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: editor-nginx
+    container_name: ${PREFIX-editor}-nginx
     depends_on:
       - editor-article-store
       - editor-client
     volumes:
       - './src/nginx.conf:/etc/nginx/nginx.conf:ro'
     ports:
-      - 4000:80
+      - ${PORT-4000}:80
 
   editor-importer:
     build:
       context: './file-watcher'
-    image: editor-importer:latest
-    container_name: editor-importer
+    image: ${PREFIX-editor}-importer:latest
+    container_name: ${PREFIX-editor}-importer
     depends_on:
       - localstack
     environment: 
       - S3_BUCKET=s3-editor-source-bucket
-      - AWS_ENDPOINT=http://editor-localstack:4566
+      - AWS_ENDPOINT=http://${PREFIX-editor}-localstack:4566
     volumes: 
       - './tmp/bucket:/bucket-to-watch:ro'
