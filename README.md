@@ -10,7 +10,7 @@ You can quickly spin-up a working version of Libero Editor using the `latest` ve
 docker-compose up
 ```
 
-You can then view the editor by navigating to [here](http://localhost:3000)
+You can then view the editor by navigating to [here](http://localhost:4000)
 
 # Developing locally
 
