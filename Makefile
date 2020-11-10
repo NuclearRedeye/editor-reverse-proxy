@@ -13,7 +13,8 @@ test:
 	@echo "Nothing to do for target '$@'"
 
 clean:
-	@docker-compose rm --stop --force
+	@docker-compose rm --stop --force -v
+	@-rm -rf ${CURDIR}/tmp/bucket
 
 distclean: clean
 	@docker image prune --all --force --filter="name=editor-*"
@@ -22,6 +23,7 @@ build:
 	@docker-compose build
 
 start: build
+	@-mkdir -p ${CURDIR}/tmp/bucket
 	@docker-compose up --detach
 
 dist:

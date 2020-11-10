@@ -82,11 +82,10 @@ services:
       - editor-article-store
       - editor-client
     volumes:
-      - "./src/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - './src/nginx.conf:/etc/nginx/nginx.conf:ro'
     ports:
       - 3000:80
 
-# Development Services
   editor-importer:
     build:
       context: './file-watcher'
@@ -98,4 +97,4 @@ services:
       - S3_BUCKET=s3-editor-source-bucket
       - AWS_ENDPOINT=http://editor-localstack:4566
     volumes: 
-      - "./tmp/s3-editor-source-bucket:/bucket-to-watch"
+      - './tmp/bucket:/bucket-to-watch:ro'
