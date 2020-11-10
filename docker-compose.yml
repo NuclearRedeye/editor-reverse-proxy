@@ -75,9 +75,9 @@ services:
     labels:
       - 'com.centurylinklabs.watchtower.enable=true'
 
-  editor-gateway:
+  nginx:
     image: nginx:alpine
-    container_name: editor-gateway
+    container_name: editor-nginx
     depends_on:
       - editor-article-store
       - editor-client
